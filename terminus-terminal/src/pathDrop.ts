@@ -5,7 +5,7 @@ import { TerminalTabComponent } from './components/terminalTab.component'
 @Injectable()
 export class PathDropDecorator extends TerminalDecorator {
     attach (terminal: TerminalTabComponent): void {
-        setTimeout(() => {
+        /*setTimeout(() => {
             terminal.hterm.scrollPort_.document_.addEventListener('dragover', (event) => {
                 event.preventDefault()
             })
@@ -15,7 +15,8 @@ export class PathDropDecorator extends TerminalDecorator {
                 }
                 event.preventDefault()
             })
-        })
+        })*/
+        
     }
 
     injectPath (terminal: TerminalTabComponent, path: string) {

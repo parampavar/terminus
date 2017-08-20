@@ -16,7 +16,6 @@ sh.cd('..')
 vars.builtinPlugins.forEach(plugin => {
   log.info('deps', plugin)
   sh.cd(plugin)
-  sh.exec('yarn prune')
   sh.exec('yarn install')
   sh.cd('..')
 })

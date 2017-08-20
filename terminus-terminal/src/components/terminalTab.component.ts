@@ -6,11 +6,12 @@ import { AppService, ConfigService, BaseTabComponent, ThemesService, HostAppServ
 import { Session, SessionsService } from '../services/sessions.service'
 
 import { TerminalDecorator, ResizeEvent, SessionOptions } from '../api'
-import { hterm, preferenceManager } from '../hterm'
+import '!style-loader!css-loader!xterm/dist/xterm.css'
+import * as xterm from 'xterm'
 
 @Component({
     selector: 'terminalTab',
-    template: '<div #content class="content" [style.opacity]="htermVisible ? 1 : 0"></div>',
+    template: '<div #content class="content" [style.opacity]="xtermVisible ? 1 : 0"></div>',
     styles: [require('./terminalTab.component.scss')],
 })
 export class TerminalTabComponent extends BaseTabComponent {
@@ -19,7 +20,7 @@ export class TerminalTabComponent extends BaseTabComponent {
     @Input() zoom = 0
     @ViewChild('content') content
     @HostBinding('style.background-color') backgroundColor: string
-    hterm: any
+    xterm: any
     sessionCloseSubscription: Subscription
     hotkeysSubscription: Subscription
     bell$ = new Subject()
@@ -30,7 +31,7 @@ export class TerminalTabComponent extends BaseTabComponent {
     contentUpdated$ = new Subject<void>()
     alternateScreenActive$ = new BehaviorSubject(false)
     mouseEvent$ = new Subject<Event>()
-    htermVisible = false
+    xtermVisible = false
     private bellPlayer: HTMLAudioElement
     private io: any
 
@@ -48,24 +49,10 @@ export class TerminalTabComponent extends BaseTabComponent {
         this.decorators = this.decorators || []
         this.title = 'Terminal'
         this.resize$.first().subscribe(async (resizeEvent) => {
-            this.session = this.sessions.addSession(
-                Object.assign({}, this.sessionOptions, resizeEvent)
-            )
             setTimeout(() => {
                 this.session.resize(resizeEvent.width, resizeEvent.height)
             }, 1000)
             // this.session.output$.bufferTime(10).subscribe((datas) => {
-            this.session.output$.subscribe(data => {
-                // let data = datas.join('')
-                this.zone.run(() => {
-                    this.output$.next(data)
-                })
-                this.write(data)
-            })
-            this.sessionCloseSubscription = this.session.closed$.subscribe(() => {
-                this.app.closeTab(this)
-            })
-            this.session.releaseInitialDataBuffer()
         })
         this.hotkeysSubscription = this.hotkeys.matchedHotkey.subscribe(hotkey => {
             if (!this.hasFocus) {
@@ -99,29 +86,24 @@ export class TerminalTabComponent extends BaseTabComponent {
     }
 
     ngOnInit () {
-        this.focused$.subscribe(() => {
+        /* this.focused$.subscribe(() => {
             this.configure()
             setTimeout(() => {
                 this.hterm.scrollPort_.resize()
                 this.hterm.scrollPort_.focus()
             }, 100)
-        })
+        }) */
 
-        this.hterm = new hterm.hterm.Terminal()
+        this.xterm = new xterm()
         this.decorators.forEach((decorator) => {
             decorator.attach(this)
         })
 
-        this.attachHTermHandlers(this.hterm)
+        this.attachHTermHandlers(this.xterm)
 
-        this.hterm.onTerminalReady = () => {
-            this.htermVisible = true
-            this.hterm.installKeyboard()
-            this.hterm.scrollPort_.setCtrlVPaste(true)
-            this.io = this.hterm.io.push()
-            this.attachIOHandlers(this.io)
-        }
-        this.hterm.decorate(this.content.nativeElement)
+        this.xterm.open(this.content.nativeElement)
+        this.xtermVisible = true
+        this.attachIOHandlers()
         this.configure()
 
         setTimeout(() => {
@@ -142,10 +124,24 @@ export class TerminalTabComponent extends BaseTabComponent {
             }
             // TODO audible
         })
+        this.session = this.sessions.addSession(
+            Object.assign({}, this.sessionOptions)
+        )
+        this.session.output$.subscribe(data => {
+            // let data = datas.join('')
+            this.zone.run(() => {
+                this.output$.next(data)
+            })
+            this.write(data)
+        })
+        this.sessionCloseSubscription = this.session.closed$.subscribe(() => {
+            this.app.closeTab(this)
+        })
+        this.session.releaseInitialDataBuffer()
     }
 
     attachHTermHandlers (hterm: any) {
-        hterm.setWindowTitle = (title) => {
+        /*hterm.setWindowTitle = (title) => {
             this.zone.run(() => {
                 this.title = title
             })
@@ -220,22 +216,23 @@ export class TerminalTabComponent extends BaseTabComponent {
             let size = _measureCharacterSize()
             size.height += this.config.store.terminal.linePadding
             return size
-        }
+        }*/
     }
 
-    attachIOHandlers (io: any) {
-        io.onVTKeystroke = io.sendString = (data) => {
+    attachIOHandlers () {
+        this.xterm.on('data', data => {
+            console.log('data', data)
             this.sendInput(data)
             this.zone.run(() => {
                 this.input$.next(data)
             })
-        }
-        io.onTerminalResize = (columns, rows) => {
+        })
+        this.xterm.on('resize', event => {
             // console.log(`Resizing to ${columns}x${rows}`)
             this.zone.run(() => {
-                this.size = { width: columns, height: rows }
+                this.size = { width: event.cols, height: event.rows }
                 if (this.session) {
-                    this.session.resize(columns, rows)
+                    this.session.resize(event.cols, event.rows)
                 }
                 this.resize$.next(this.size)
             })
@@ -247,7 +244,7 @@ export class TerminalTabComponent extends BaseTabComponent {
     }
 
     write (data: string) {
-        this.io.writeUTF8(data)
+        this.xterm.write(data)
     }
 
     clear () {
@@ -257,6 +254,7 @@ export class TerminalTabComponent extends BaseTabComponent {
 
     async configure (): Promise<void> {
         let config = this.config.store
+        /*
         preferenceManager.set('font-family', `"${config.terminal.font}", "monospace-fallback", monospace`)
         this.setFontSize()
         preferenceManager.set('enable-bold', true)
@@ -315,7 +313,7 @@ export class TerminalTabComponent extends BaseTabComponent {
             underline: hterm.hterm.Terminal.cursorShape.UNDERLINE,
             beam: hterm.hterm.Terminal.cursorShape.BEAM,
         }[config.terminal.cursor]
-        this.hterm.applyCursorShape()
+        this.hterm.applyCursorShape()*/
     }
 
     zoomIn () {
