@@ -114,12 +114,12 @@
   dependencies:
     debug "^4.3.2"
 
-"@tabby-gang/node-pty@^0.11.0-beta.200":
-  version "0.11.0-beta.200"
-  resolved "https://registry.yarnpkg.com/@tabby-gang/node-pty/-/node-pty-0.11.0-beta.200.tgz#485cd6d85a04f4b272b81a9862578d7fc38cdfb5"
-  integrity sha512-32ANParjnd38SzvICaLYvEBlTZAE2sqsgEZPK6ITgd38FcCsS/yvvsDZcjkclbxApnMM2rJDaYjsZMa0lr9Iyg==
+"@tabby-gang/node-pty@^0.11.0-beta.204":
+  version "0.11.0-beta.204"
+  resolved "https://registry.yarnpkg.com/@tabby-gang/node-pty/-/node-pty-0.11.0-beta.204.tgz#80d4393c7a233d3298f47a4755467a246b0099f9"
+  integrity sha512-sNT5Z2MEkEIhToAdVAdZ/lfeQ9UgFE3h2ENlOux+WHBrl1k0BiUEIOd/jh/K3mNAGEfcZ44gNQQ50g5KXTQEmA==
   dependencies:
-    nan "^2.14.0"
+    nan "^2.16.0"
 
 "@tabby-gang/windows-blurbehind@^3.0.0":
   version "3.0.0"
@@ -2234,10 +2234,10 @@ mz@^2.7.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-nan@^2.13.2, nan@^2.14.0:
-  version "2.14.2"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
-  integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
+nan@^2.13.2, nan@^2.16.0:
+  version "2.17.0"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.17.0.tgz#c0150a2368a182f033e9aa5195ec76ea41a199cb"
+  integrity sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==
 
 napi-build-utils@^1.0.1:
   version "1.0.2"
